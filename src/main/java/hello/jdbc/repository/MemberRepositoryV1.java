@@ -109,10 +109,10 @@ public class MemberRepositoryV1 {
             }
         } catch (SQLException e) {
             log.info("error", e);
+            throw e;
         } finally {
             close(con, pstmt , rs);
         }
-        return null;
     }
 
 
