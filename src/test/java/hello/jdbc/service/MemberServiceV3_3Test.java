@@ -27,7 +27,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 class MemberServiceV3_3Test {
 
-
+//registering test within spring context; uses Spring container
+//@Transactional is a spring interface that employs Spring AOP.
+//It needs to be registered on spring context to even work.
+//to be more specific, the @Transactional finds a TransactionManager registered within Spring context
+//TestConfiguration is a Configuration that adds additional beans needed for a test class
+//just think of it as a minor extension of config that can add beans needed for a test class
+//as and when needed.
     public static final String MEMBER_A = "memberA";
     public static final String MEMBER_B = "memberB";
     public static final String MEMBER_EX = "ex";
