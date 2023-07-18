@@ -15,6 +15,9 @@ public class MemberServiceV3_3 {
 
     private final MemberRepositoryV3 memberRepository;
 
+// MemberServiceV3_3$$SpringCGLIB$$0 -> Spring creates a class that inherits this class
+// and creates a proxy class via overriding some code internally thru cglib
+// to be further mentioned in SPRING AOP
     @Transactional
     public void accountTransfer(String fromId, String toId, int money) throws SQLException {
         bizLogic(fromId, toId, money);
