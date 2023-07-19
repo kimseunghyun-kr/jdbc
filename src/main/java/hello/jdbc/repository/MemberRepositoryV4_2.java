@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 
 import javax.sql.DataSource;
@@ -21,6 +22,12 @@ public class MemberRepositoryV4_2 implements MemberRepository{
     private final DataSource dataSource;
     private final SQLExceptionTranslator exTranslator;
 
+    public MemberRepositoryV4_2(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.exTranslator = new SQLErrorCodeSQLExceptionTranslator(dataSource);
+    }
+
+    @Override
     public Member save(Member member) {
 
         String sql = "insert into member(member_id, money) values(?, ?)";
@@ -36,12 +43,13 @@ public class MemberRepositoryV4_2 implements MemberRepository{
             return member;
         } catch (SQLException e) {
             log.error("db error", e);
-            exTranslator.translate()
+            throw exTranslator.translate("save",sql,e);
         } finally {
             close(con, pstmt, null);
         }
     }
 
+    @Override
     public Member findById(String memberId) {
         String sql = "select * from member where member_id = ?";
         Connection con = null;
@@ -64,12 +72,13 @@ public class MemberRepositoryV4_2 implements MemberRepository{
             }
         } catch (SQLException e) {
             log.error("db error", e);
-            throw new MyDbException(e);
+            throw exTranslator.translate("select",sql,e);
         } finally {
             close(con, pstmt, rs);
         }
     }
 
+    @Override
     public void update(String memberId, int money) {
         String sql = "update member set money=? where member_id=?";
 
@@ -86,13 +95,14 @@ public class MemberRepositoryV4_2 implements MemberRepository{
             log.info("resultSize = {}", resultSize);  //no of updated individuals
         } catch (SQLException e) {
             log.error("db error", e);
-            throw new MyDbException(e);
+            exTranslator.translate("update",sql,e);
         } finally {
             close(con,pstmt, null);
         }
 
     }
 
+    @Override
     public void delete(String memberId) {
         String sql = "delete from member where member_id=?";
         Connection con = null;
@@ -104,7 +114,7 @@ public class MemberRepositoryV4_2 implements MemberRepository{
             pstmt.executeUpdate();
         } catch (SQLException e) {
             log.error("db error", e);
-            throw new MyDbException(e);
+            exTranslator.translate("delete",sql,e);
         } finally {
             close(con, pstmt, null);
         }
